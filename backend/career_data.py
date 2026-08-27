@@ -1,32 +1,86 @@
+# ============================================================
+# CAREER DATA
+# ============================================================
+
 careers = [
+
     {
         "career": "Software Developer",
-        "skills": ["Python", "C++", "SQL", "Git", "Data Structures"]
+        "skills": [
+            "Python",
+            "C++",
+            "SQL",
+            "Git",
+            "Data Structures"
+        ]
     },
+
     {
         "career": "Data Scientist",
-        "skills": ["Python", "SQL", "Machine Learning", "Statistics", "Pandas"]
+        "skills": [
+            "Python",
+            "SQL",
+            "Machine Learning",
+            "Statistics",
+            "Pandas"
+        ]
     },
+
     {
         "career": "AI Engineer",
-        "skills": ["Python", "Machine Learning", "AI", "Deep Learning", "TensorFlow"]
+        "skills": [
+            "Python",
+            "Machine Learning",
+            "AI",
+            "Deep Learning",
+            "TensorFlow"
+        ]
     },
+
     {
         "career": "Blockchain Developer",
-        "skills": ["Python", "C++", "Blockchain", "Solidity", "Cryptography"]
+        "skills": [
+            "Python",
+            "C++",
+            "Blockchain",
+            "Solidity",
+            "Cryptography"
+        ]
     },
+
     {
         "career": "Web Developer",
-        "skills": ["HTML", "CSS", "JavaScript", "React", "Node.js"]
+        "skills": [
+            "HTML",
+            "CSS",
+            "JavaScript",
+            "React",
+            "Node.js"
+        ]
     },
+
     {
         "career": "Mobile App Developer",
-        "skills": ["Java", "Kotlin", "Swift", "Flutter", "REST APIs"]
+        "skills": [
+            "Java",
+            "Kotlin",
+            "Swift",
+            "Flutter",
+            "REST APIs"
+        ]
     },
+
     {
         "career": "DevOps Engineer",
-        "skills": ["Linux", "Docker", "Kubernetes", "CI/CD", "AWS"]
+        "skills": [
+            "Linux",
+            "Docker",
+            "Kubernetes",
+            "CI/CD",
+            "AWS"
+        ]
     },
+
     {
         "career": "Cybersecurity Analyst",
         "skills": [
@@ -37,6 +91,7 @@ careers = [
             "Cryptography"
         ]
     },
+
     {
         "career": "Cloud Engineer",
         "skills": [
@@ -47,6 +102,7 @@ careers = [
             "Networking"
         ]
     },
+
     {
         "career": "Database Administrator",
         "skills": [
@@ -57,6 +113,7 @@ careers = [
             "Backup & Recovery"
         ]
     },
+
     {
         "career": "Game Developer",
         "skills": [
@@ -67,6 +124,7 @@ careers = [
             "3D Math"
         ]
     },
+
     {
         "career": "UI/UX Designer",
         "skills": [
@@ -77,6 +135,7 @@ careers = [
             "Prototyping"
         ]
     },
+
     {
         "career": "Embedded Systems Engineer",
         "skills": [
@@ -87,6 +146,7 @@ careers = [
             "Circuit Design"
         ]
     },
+
     {
         "career": "Full Stack Developer",
         "skills": [
@@ -98,6 +158,7 @@ careers = [
             "CSS"
         ]
     },
+
     {
         "career": "Machine Learning Engineer",
         "skills": [
@@ -111,7 +172,10 @@ careers = [
 ]
 
 
-# Skill difficulty levels
+# ============================================================
+# SKILL DIFFICULTY LEVELS
+# ============================================================
+
 skill_levels = {
 
     # Programming
@@ -186,10 +250,227 @@ skill_levels = {
     "Circuit Design": "Intermediate",
 
     # Machine Learning Operations
-    "MLOps": "Advanced"
+    "MLOps": "Advanced",
+
+    # Additional dependency skill
+    "Dart": "Beginner"
 }
 
 
+# ============================================================
+# SKILL PRIORITY
+# ============================================================
+
+skill_priority = {
+    "Beginner": 1,
+    "Intermediate": 2,
+    "Advanced": 3
+}
+
+
+# ============================================================
+# SKILL DEPENDENCIES
+# ============================================================
+
+skill_dependencies = {
+
+    # Programming
+    "C++": ["C"],
+    "C#": ["C++"],
+    "Java": [],
+    "Kotlin": ["Java"],
+    "Swift": [],
+
+    # Software Development
+    "SQL": [],
+    "Git": [],
+    "Data Structures": ["C++"],
+
+    # Data Science / AI
+    "Pandas": ["Python"],
+    "Statistics": [],
+    "Machine Learning": [
+        "Python",
+        "Statistics"
+    ],
+    "AI": [
+        "Python",
+        "Machine Learning"
+    ],
+    "Deep Learning": [
+        "Python",
+        "Machine Learning",
+        "AI"
+    ],
+    "TensorFlow": [
+        "Python",
+        "Machine Learning",
+        "Deep Learning"
+    ],
+
+    # Blockchain
+    "Blockchain": [
+        "Python",
+        "C++"
+    ],
+    "Solidity": [
+        "Blockchain"
+    ],
+    "Cryptography": [
+        "Python"
+    ],
+
+    # Web Development
+    "HTML": [],
+    "CSS": [
+        "HTML"
+    ],
+    "JavaScript": [
+        "HTML",
+        "CSS"
+    ],
+    "React": [
+        "JavaScript"
+    ],
+    "Node.js": [
+        "JavaScript"
+    ],
+
+    # Mobile Development
+    "Flutter": [
+        "Dart"
+    ],
+    "REST APIs": [],
+
+    # DevOps / Cloud
+    "Linux": [],
+    "Docker": [
+        "Linux"
+    ],
+    "Kubernetes": [
+        "Docker",
+        "Linux"
+    ],
+    "CI/CD": [
+        "Git",
+        "Linux"
+    ],
+    "AWS": [
+        "Linux",
+        "Networking"
+    ],
+    "Azure": [
+        "Linux",
+        "Networking"
+    ],
+
+    # Cybersecurity
+    "Networking": [],
+    "Penetration Testing": [
+        "Networking",
+        "Linux"
+    ],
+
+    # Database
+    "PostgreSQL": [
+        "SQL"
+    ],
+    "MongoDB": [
+        "Data Modeling"
+    ],
+    "Data Modeling": [
+        "SQL"
+    ],
+    "Backup & Recovery": [
+        "SQL"
+    ],
+
+    # Game Development
+    "Unity": [
+        "C#"
+    ],
+    "Unreal Engine": [
+        "C++"
+    ],
+    "3D Math": [],
+
+    # UI/UX
+    "Figma": [],
+    "User Research": [],
+    "Prototyping": [
+        "Figma",
+        "User Research"
+    ],
+
+    # Embedded Systems
+    "Microcontrollers": [
+        "C",
+        "C++"
+    ],
+    "RTOS": [
+        "C",
+        "Microcontrollers"
+    ],
+    "Circuit Design": [],
+
+    # Machine Learning Operations
+    "MLOps": [
+        "Python",
+        "Machine Learning",
+        "Docker",
+        "Git"
+    ]
+}
+
+
+# ============================================================
+# GET LEARNING ORDER
+# ============================================================
+
+def get_learning_order(required_skills, student_skills_set):
+
+    learning_order = []
+    visited = set()
+
+    def add_skill(skill):
+
+        # Already processed
+        if skill in visited:
+            return
+
+        # Student already knows this skill
+        if skill in student_skills_set:
+            visited.add(skill)
+            return
+
+        # Get dependencies
+        dependencies = skill_dependencies.get(
+            skill,
+            []
+        )
+
+        # Process missing dependencies first
+        for dependency in dependencies:
+
+            if dependency not in student_skills_set:
+                add_skill(dependency)
+
+        # Add skill after dependencies
+        if skill not in learning_order:
+            learning_order.append(skill)
+
+        visited.add(skill)
+
+    # Process required skills
+    for skill in required_skills:
+        add_skill(skill)
+
+    return learning_order
+
+
+# ============================================================
+# RECOMMEND CAREERS
+# ============================================================
 
 def recommend_careers(student_skills):
 
@@ -201,65 +482,142 @@ def recommend_careers(student_skills):
     # Check every career
     for career in careers:
 
-        # Keep original order
         required_skills = career["skills"]
 
-        # Find matched skills in career order
+        # ----------------------------------------------------
+        # MATCHED SKILLS
+        # ----------------------------------------------------
+
         matched_skills = [
             skill
             for skill in required_skills
             if skill in student_skills_set
         ]
 
-        # Find missing skills in career order
+        # ----------------------------------------------------
+        # MISSING SKILLS
+        # ----------------------------------------------------
+
         missing_skills = [
             skill
             for skill in required_skills
             if skill not in student_skills_set
         ]
 
-        # Calculate match percentage
+        # ----------------------------------------------------
+        # MATCH PERCENTAGE
+        # ----------------------------------------------------
+
         match_percentage = (
-            len(matched_skills) /
-            len(required_skills)
+            len(matched_skills)
+            / len(required_skills)
         ) * 100
 
-        # Create roadmap
+        # ----------------------------------------------------
+        # CREATE ROADMAP
+        # ----------------------------------------------------
+
         roadmap = []
 
-        priority = 1
+        # Dependency-aware learning order
+        learning_order = get_learning_order(
+            required_skills,
+            student_skills_set
+        )
+
+        # Position of every skill
+        learning_position = {
+            skill: index + 1
+            for index, skill in enumerate(
+                learning_order
+            )
+        }
+
+        # ----------------------------------------------------
+        # BUILD ROADMAP
+        # ----------------------------------------------------
 
         for skill in required_skills:
 
-            # Student already has skill
+            # Student already knows skill
             if skill in student_skills_set:
 
+                level = skill_levels.get(
+                    skill,
+                    "Beginner"
+                )
+
                 roadmap.append({
                     "skill": skill,
-                    "level": skill_levels.get(
-                        skill,
-                        "Beginner"
-                    ),
+                    "level": level,
                     "priority": 0,
-                    "status": "Completed"
+                    "status": "Completed",
+                    "prerequisites": skill_dependencies.get(
+                        skill,
+                        []
+                    ),
+                    "missing_prerequisites": [],
+                    "learning_order": 0
                 })
 
-            # Student needs skill
+            # Student does not know skill
             else:
 
+                level = skill_levels.get(
+                    skill,
+                    "Beginner"
+                )
+
+                dependencies = skill_dependencies.get(
+                    skill,
+                    []
+                )
+
+                missing_dependencies = [
+                    dependency
+                    for dependency in dependencies
+                    if dependency not in student_skills_set
+                ]
+
+                # Priority
+                if len(missing_dependencies) == 0:
+
+                    priority = 1
+                    status = "Learn Next"
+
+                else:
+
+                    priority = 2
+                    status = "Learn After Prerequisites"
+
                 roadmap.append({
                     "skill": skill,
-                    "level": skill_levels.get(
-                        skill,
-                        "Beginner"
-                    ),
+                    "level": level,
                     "priority": priority,
-                    "status": "Learn Next"
+                    "status": status,
+                    "prerequisites": dependencies,
+                    "missing_prerequisites": missing_dependencies,
+                    "learning_order": learning_position.get(
+                        skill,
+                        999
+                    )
                 })
 
-                priority += 1
+        # ----------------------------------------------------
+        # SORT ROADMAP
+        # ----------------------------------------------------
 
-        # Add recommendation
+        roadmap.sort(
+            key=lambda x: (
+                x["learning_order"] == 0,
+                x["learning_order"]
+            )
+        )
+
+        # ----------------------------------------------------
+        # ADD CAREER RECOMMENDATION
+        # ----------------------------------------------------
+
         recommendations.append({
             "career": career["career"],
             "match_percentage": round(
@@ -271,7 +629,10 @@ def recommend_careers(student_skills):
             "roadmap": roadmap
         })
 
-    # Sort highest match first
+    # ========================================================
+    # SORT CAREERS
+    # ========================================================
+
     recommendations.sort(
         key=lambda x: x["match_percentage"],
         reverse=True
@@ -283,10 +644,13 @@ def recommend_careers(student_skills):
     # Best career
     best_career = top_3[0]
 
-    # Count skills
+    # ========================================================
+    # BEST CAREER STATISTICS
+    # ========================================================
+
     total_skills = (
-        len(best_career["matched_skills"]) +
-        len(best_career["missing_skills"])
+        len(best_career["matched_skills"])
+        + len(best_career["missing_skills"])
     )
 
     matched_count = len(
@@ -297,7 +661,10 @@ def recommend_careers(student_skills):
         best_career["missing_skills"]
     )
 
-    # Create recommendation reason
+    # ========================================================
+    # RECOMMENDATION REASON
+    # ========================================================
+
     if missing_count == 0:
 
         reason = (
@@ -319,9 +686,29 @@ def recommend_careers(student_skills):
             f"to improve your match."
         )
 
-    # Final result
+    # ========================================================
+    # FINAL RESULT
+    # ========================================================
+
     return {
         "best_career": best_career["career"],
         "recommendation_reason": reason,
         "recommendations": top_3
     }
+
+
+# ============================================================
+# GET CAREER BY NAME
+# ============================================================
+
+def get_career_by_name(career_name):
+
+    for career in careers:
+
+        if (
+            career["career"].lower()
+            == career_name.lower()
+        ):
+            return career
+
+    return None
