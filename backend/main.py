@@ -265,7 +265,7 @@ def career_recommend(student_id: str):
     )
 
     # -----------------------------------------------------
-    # Default goal values
+    # Default values
     # -----------------------------------------------------
 
     goal_match_percentage = 0
@@ -305,7 +305,7 @@ def career_recommend(student_id: str):
             if skill not in student_skills_set
         ]
 
-        # Calculate percentage
+        # Percentage
         if len(required_skills) > 0:
 
             goal_match_percentage = round(
@@ -326,7 +326,7 @@ def career_recommend(student_id: str):
     )
 
     # -----------------------------------------------------
-    # Create goal analysis
+    # Goal analysis
     # -----------------------------------------------------
 
     if goal_match:
@@ -361,7 +361,7 @@ def career_recommend(student_id: str):
             )
 
     # -----------------------------------------------------
-    # Final recommendation response
+    # Final response
     # -----------------------------------------------------
 
     return {
@@ -400,14 +400,13 @@ def career_recommend(student_id: str):
 
 # =========================================================
 # CAREER ROADMAP
-# PROGRESS + NEXT SKILL + COMPLETION STATUS
 # =========================================================
 
 @app.get("/career/roadmap/{student_id}")
 def career_roadmap(student_id: str):
 
     # -----------------------------------------------------
-    # Check student ID
+    # 1. Validate Student ID
     # -----------------------------------------------------
 
     try:
@@ -422,7 +421,7 @@ def career_roadmap(student_id: str):
         )
 
     # -----------------------------------------------------
-    # Find student
+    # 2. Find Student
     # -----------------------------------------------------
 
     student = student_collection.find_one(
@@ -439,30 +438,42 @@ def career_roadmap(student_id: str):
         )
 
     # -----------------------------------------------------
-    # Get career recommendations
+    # 3. Get Student Skills
     # -----------------------------------------------------
 
-    result = recommend_careers(
-        student.get("skills", [])
+    student_skills = student.get(
+        "skills",
+        []
     )
 
     # -----------------------------------------------------
-    # Get best career
+    # 4. Get Career Recommendations
     # -----------------------------------------------------
 
-    if not result["recommendations"]:
+    result = recommend_careers(
+        student_skills
+    )
+
+    recommendations = result.get(
+        "recommendations",
+        []
+    )
+
+    if not recommendations:
 
         raise HTTPException(
             status_code=404,
             detail="No career recommendations available"
         )
 
-    best_career = result[
-        "recommendations"
-    ][0]
+    # -----------------------------------------------------
+    # 5. Best Career
+    # -----------------------------------------------------
+
+    best_career = recommendations[0]
 
     # -----------------------------------------------------
-    # Get roadmap
+    # 6. Get Roadmap
     # -----------------------------------------------------
 
     roadmap = best_career.get(
@@ -470,8 +481,15 @@ def career_roadmap(student_id: str):
         []
     )
 
+    if not roadmap:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Career roadmap is empty"
+        )
+
     # -----------------------------------------------------
-    # Completed skills
+    # 7. Completed Skills
     # -----------------------------------------------------
 
     completed_skills = [
@@ -481,7 +499,7 @@ def career_roadmap(student_id: str):
     ]
 
     # -----------------------------------------------------
-    # Skills still to learn
+    # 8. Skills To Learn
     # -----------------------------------------------------
 
     skills_to_learn = [
@@ -491,7 +509,7 @@ def career_roadmap(student_id: str):
     ]
 
     # -----------------------------------------------------
-    # Find next skill
+    # 9. Find Next Skill
     # -----------------------------------------------------
 
     next_skill = None
@@ -503,11 +521,9 @@ def career_roadmap(student_id: str):
             []
         )
 
-        # Skill can be learned immediately
         if len(missing_prerequisites) == 0:
 
             next_skill = {
-
                 "skill":
                     item["skill"],
 
@@ -524,7 +540,7 @@ def career_roadmap(student_id: str):
             break
 
     # -----------------------------------------------------
-    # Progress calculation
+    # 10. Progress Calculation
     # -----------------------------------------------------
 
     total_skills = len(
@@ -554,7 +570,7 @@ def career_roadmap(student_id: str):
         progress_percentage = 0
 
     # -----------------------------------------------------
-    # Roadmap completion status
+    # 11. Roadmap Status
     # -----------------------------------------------------
 
     if total_skills == 0:
@@ -570,7 +586,33 @@ def career_roadmap(student_id: str):
         roadmap_status = "In Progress"
 
     # -----------------------------------------------------
-    # Final roadmap response
+    # 12. Roadmap Summary - STEP 7.6
+    # -----------------------------------------------------
+
+    if roadmap_status == "Completed":
+
+        roadmap_message = (
+            "Congratulations! "
+            "You have completed your roadmap."
+        )
+
+    elif roadmap_status == "No Skills":
+
+        roadmap_message = (
+            "No skills are available "
+            "in the roadmap."
+        )
+
+    else:
+
+        roadmap_message = (
+            f"Keep learning! "
+            f"You have {remaining_count} "
+            f"skills remaining."
+        )
+
+    # -----------------------------------------------------
+    # 13. Final Roadmap Response
     # -----------------------------------------------------
 
     return {
@@ -602,6 +644,19 @@ def career_roadmap(student_id: str):
                 roadmap_status
         },
 
+        # -------------------------------------------------
+        # STEP 7.6 SUMMARY
+        # -------------------------------------------------
+
+        "summary": {
+
+            "message":
+                roadmap_message,
+
+            "completed_percentage":
+                progress_percentage
+        },
+
         "next_skill":
             next_skill,
 
@@ -610,4 +665,298 @@ def career_roadmap(student_id: str):
 
         "skills_to_learn":
             skills_to_learn
+    }
+
+
+# =========================================================
+# COMPLETE SKILL
+# DAY 7 - STEP 7.5
+# SKILL + PREREQUISITE VALIDATION
+# =========================================================
+
+@app.post(
+    "/career/roadmap/{student_id}/complete/{skill}"
+)
+def complete_skill(
+    student_id: str,
+    skill: str
+):
+
+    # -----------------------------------------------------
+    # 1. Validate Student ID
+    # -----------------------------------------------------
+
+    try:
+
+        object_id = ObjectId(student_id)
+
+    except Exception:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid student ID"
+        )
+
+    # -----------------------------------------------------
+    # 2. Find Student
+    # -----------------------------------------------------
+
+    student = student_collection.find_one(
+        {
+            "_id": object_id
+        }
+    )
+
+    if not student:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    # -----------------------------------------------------
+    # 3. Current Skills
+    # -----------------------------------------------------
+
+    current_skills = student.get(
+        "skills",
+        []
+    )
+
+    # -----------------------------------------------------
+    # 4. Get Career Recommendation
+    # -----------------------------------------------------
+
+    recommendation_result = recommend_careers(
+        current_skills
+    )
+
+    recommendations = recommendation_result.get(
+        "recommendations",
+        []
+    )
+
+    if not recommendations:
+
+        raise HTTPException(
+            status_code=404,
+            detail="No career roadmap available"
+        )
+
+    # -----------------------------------------------------
+    # 5. Best Career
+    # -----------------------------------------------------
+
+    best_career = recommendations[0]
+
+    # -----------------------------------------------------
+    # 6. Get Roadmap
+    # -----------------------------------------------------
+
+    roadmap = best_career.get(
+        "roadmap",
+        []
+    )
+
+    if not roadmap:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Career roadmap is empty"
+        )
+
+    # -----------------------------------------------------
+    # 7. Clean Requested Skill
+    # -----------------------------------------------------
+
+    requested_skill = skill.strip()
+
+    if not requested_skill:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Skill cannot be empty"
+        )
+
+    # -----------------------------------------------------
+    # 8. Find Skill in Roadmap
+    # Case-insensitive
+    # -----------------------------------------------------
+
+    roadmap_item = next(
+        (
+            item
+            for item in roadmap
+            if item["skill"].strip().lower()
+            == requested_skill.lower()
+        ),
+        None
+    )
+
+    # -----------------------------------------------------
+    # 9. Invalid Skill
+    # -----------------------------------------------------
+
+    if roadmap_item is None:
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Skill '{requested_skill}' "
+                "not found in the career roadmap."
+            )
+        )
+
+    # -----------------------------------------------------
+    # 10. Official Skill Name
+    # -----------------------------------------------------
+
+    roadmap_skill = roadmap_item["skill"]
+
+    # -----------------------------------------------------
+    # 11. Already Completed
+    # -----------------------------------------------------
+
+    existing_skill = next(
+        (
+            existing
+            for existing in current_skills
+            if existing.strip().lower()
+            == roadmap_skill.strip().lower()
+        ),
+        None
+    )
+
+    if existing_skill:
+
+        return {
+
+            "message":
+                "Skill already completed!",
+
+            "student":
+                student["name"],
+
+            "career":
+                best_career["career"],
+
+            "skill":
+                roadmap_skill,
+
+            "status":
+                "Already Completed",
+
+            "skills":
+                current_skills
+        }
+
+    # -----------------------------------------------------
+    # 12. Get Prerequisites
+    # -----------------------------------------------------
+
+    prerequisites = roadmap_item.get(
+        "prerequisites",
+        []
+    )
+
+    # -----------------------------------------------------
+    # 13. Normalize Current Skills
+    # -----------------------------------------------------
+
+    current_skills_lower = {
+        existing.strip().lower()
+        for existing in current_skills
+    }
+
+    # -----------------------------------------------------
+    # 14. Find Missing Prerequisites
+    # -----------------------------------------------------
+
+    missing_prerequisites = [
+        prerequisite
+        for prerequisite in prerequisites
+        if prerequisite.strip().lower()
+        not in current_skills_lower
+    ]
+
+    # -----------------------------------------------------
+    # 15. Reject Missing Prerequisites
+    # -----------------------------------------------------
+
+    if missing_prerequisites:
+
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": (
+                    f"Cannot complete {roadmap_skill} "
+                    "because prerequisites are incomplete."
+                ),
+                "skill":
+                    roadmap_skill,
+                "missing_prerequisites":
+                    missing_prerequisites
+            }
+        )
+
+    # -----------------------------------------------------
+    # 16. Add Skill
+    # -----------------------------------------------------
+
+    current_skills.append(
+        roadmap_skill
+    )
+
+    # -----------------------------------------------------
+    # 17. Update MongoDB
+    # -----------------------------------------------------
+
+    update_result = student_collection.update_one(
+        {
+            "_id": object_id
+        },
+        {
+            "$set": {
+                "skills": current_skills
+            }
+        }
+    )
+
+    # -----------------------------------------------------
+    # 18. Verify Update
+    # -----------------------------------------------------
+
+    if update_result.matched_count == 0:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    # -----------------------------------------------------
+    # 19. Success
+    # -----------------------------------------------------
+
+    return {
+
+        "message":
+            "Skill completed successfully!",
+
+        "student":
+            student["name"],
+
+        "career":
+            best_career["career"],
+
+        "skill":
+            roadmap_skill,
+
+        "status":
+            "Completed",
+
+        "skills":
+            current_skills,
+
+        "modified":
+            update_result.modified_count
     }
