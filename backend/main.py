@@ -1,4 +1,6 @@
+
 from fastapi import FastAPI, HTTPException
+from datetime import datetime
 from backend.database import student_collection
 from backend.models import Student
 from bson import ObjectId
@@ -903,24 +905,46 @@ def complete_skill(
     # 16. Add Skill
     # -----------------------------------------------------
 
+        # -----------------------------------------------------
+# 16. Add Skill
+# -----------------------------------------------------
+
     current_skills.append(
-        roadmap_skill
+    roadmap_skill
     )
 
-    # -----------------------------------------------------
-    # 17. Update MongoDB
-    # -----------------------------------------------------
+
+# -----------------------------------------------------
+# 17. Add Learning History
+# -----------------------------------------------------
+
+    learning_history = student.get(
+    "learning_history",
+    []
+)
+
+    learning_history.append({
+    "skill": roadmap_skill,
+    "status": "Completed",
+    "completed_at": datetime.now().isoformat()
+})
+
+
+# -----------------------------------------------------
+# 18. Update MongoDB
+# -----------------------------------------------------
 
     update_result = student_collection.update_one(
-        {
-            "_id": object_id
-        },
-        {
-            "$set": {
-                "skills": current_skills
-            }
+    {
+        "_id": object_id
+    },
+    {
+        "$set": {
+            "skills": current_skills,
+            "learning_history": learning_history
         }
-    )
+    }
+)
 
     # -----------------------------------------------------
     # 18. Verify Update
@@ -938,25 +962,211 @@ def complete_skill(
     # -----------------------------------------------------
 
     return {
+    "message":
+        "Skill completed successfully!",
 
-        "message":
-            "Skill completed successfully!",
+    "student":
+        student["name"],
 
-        "student":
-            student["name"],
+    "career":
+        best_career["career"],
 
-        "career":
-            best_career["career"],
+    "skill":
+        roadmap_skill,
 
-        "skill":
-            roadmap_skill,
+    "status":
+        "Completed",
 
-        "status":
-            "Completed",
+    "skills":
+        current_skills,
 
-        "skills":
-            current_skills,
+    "learning_history":
+        learning_history,
 
-        "modified":
-            update_result.modified_count
+    "modified":
+        update_result.modified_count
+}
+# =========================================================
+# CAREER GOAL PROGRESS
+# DAY 8 - STEP 8.1
+# =========================================================
+
+@app.get("/career/goal-progress/{student_id}")
+def career_goal_progress(student_id: str):
+
+    # -----------------------------------------------------
+    # 1. Validate Student ID
+    # -----------------------------------------------------
+
+    try:
+        object_id = ObjectId(student_id)
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid student ID"
+        )
+
+    # -----------------------------------------------------
+    # 2. Find Student
+    # -----------------------------------------------------
+
+    student = student_collection.find_one(
+        {
+            "_id": object_id
+        }
+    )
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    # -----------------------------------------------------
+    # 3. Get Career Goal
+    # -----------------------------------------------------
+
+    career_goal = student.get(
+        "career_goal",
+        ""
+    )
+
+    if not career_goal:
+        raise HTTPException(
+            status_code=400,
+            detail="Student has no career goal"
+        )
+
+    # -----------------------------------------------------
+    # 4. Find Career
+    # -----------------------------------------------------
+
+    career_data = get_career_by_name(
+        career_goal
+    )
+
+    if not career_data:
+        raise HTTPException(
+            status_code=404,
+            detail="Career goal not found in career database"
+        )
+
+    # -----------------------------------------------------
+    # 5. Get Required Skills
+    # -----------------------------------------------------
+
+    required_skills = career_data.get(
+        "skills",
+        []
+    )
+    if not required_skills:
+        raise HTTPException(
+        status_code=404,
+        detail="No skills found for this career"
+    )
+
+    # -----------------------------------------------------
+    # 6. Get Student Skills
+    # -----------------------------------------------------
+
+    student_skills = student.get(
+        "skills",
+        []
+    )
+
+    student_skills_lower = {
+        skill.strip().lower()
+        for skill in student_skills
     }
+
+    # -----------------------------------------------------
+    # 7. Find Completed Goal Skills
+    # -----------------------------------------------------
+
+    completed_skills = [
+        skill
+        for skill in required_skills
+        if skill.strip().lower()
+        in student_skills_lower
+    ]
+
+    # -----------------------------------------------------
+    # 8. Find Missing Goal Skills
+    # -----------------------------------------------------
+
+    missing_skills = [
+        skill
+        for skill in required_skills
+        if skill.strip().lower()
+        not in student_skills_lower
+    ]
+     # Find the next skill the student should learn
+    if missing_skills:
+         next_goal_skill = {
+        "skill": missing_skills[0],
+        "reason": "This is the next missing skill required for your career goal."
+    }
+    else:
+        next_goal_skill = None
+
+    # -----------------------------------------------------
+    # 9. Calculate Progress
+    # -----------------------------------------------------
+
+    total_skills = len(
+        required_skills
+    )
+
+    completed_count = len(
+        completed_skills
+    )
+
+    if total_skills > 0:
+
+        progress_percentage = round(
+            (
+                completed_count
+                / total_skills
+            ) * 100,
+            2
+        )
+
+    else:
+
+        progress_percentage = 0
+
+    # -----------------------------------------------------
+    # 10. Goal Status
+    # -----------------------------------------------------
+
+    if completed_count == 0:
+
+        goal_status = "Not Started"
+
+    elif completed_count == total_skills:
+
+        goal_status = "Completed"
+
+    else:
+
+        goal_status = "In Progress"
+
+    # -----------------------------------------------------
+    # 11. Final Response
+    # -----------------------------------------------------
+
+    return {
+    "student": student["name"],
+    "career_goal": career_goal,
+    "progress": {
+        "total_skills": total_skills,
+        "completed": completed_count,
+        "remaining": len(missing_skills),
+        "progress_percentage": progress_percentage,
+        "goal_status": goal_status
+    },
+    "completed_skills": completed_skills,
+    "missing_skills": missing_skills,
+    "next_goal_skill": next_goal_skill
+}

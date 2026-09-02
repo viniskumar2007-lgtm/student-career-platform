@@ -7,4 +7,8 @@ class Student(BaseModel):
     skills: list[str] = Field(default_factory=list)
     interests: list[str] = Field(default_factory=list)
     career_goal: str = ""
-    
+class LearningHistory(BaseModel):
+
+    skill: str
+    status: str
+    completed_at: str
