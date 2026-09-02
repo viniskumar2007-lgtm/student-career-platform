@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, HTTPException
 from datetime import datetime
 from backend.database import student_collection
@@ -204,7 +203,7 @@ def search_student(name: str):
 def career_recommend(student_id: str):
 
     # -----------------------------------------------------
-    # Check student ID
+    # 1. Check Student ID
     # -----------------------------------------------------
 
     try:
@@ -219,7 +218,7 @@ def career_recommend(student_id: str):
         )
 
     # -----------------------------------------------------
-    # Find student
+    # 2. Find Student
     # -----------------------------------------------------
 
     student = student_collection.find_one(
@@ -236,7 +235,7 @@ def career_recommend(student_id: str):
         )
 
     # -----------------------------------------------------
-    # Get career recommendations
+    # 3. Get Career Recommendations
     # -----------------------------------------------------
 
     result = recommend_careers(
@@ -244,7 +243,7 @@ def career_recommend(student_id: str):
     )
 
     # -----------------------------------------------------
-    # Get career goal
+    # 4. Get Career Goal
     # -----------------------------------------------------
 
     career_goal = student.get(
@@ -253,13 +252,13 @@ def career_recommend(student_id: str):
     )
 
     # -----------------------------------------------------
-    # Get best career
+    # 5. Get Best Career
     # -----------------------------------------------------
 
     best_career = result["best_career"]
 
     # -----------------------------------------------------
-    # Find student's goal career
+    # 6. Find Student's Goal Career
     # -----------------------------------------------------
 
     goal_career_data = get_career_by_name(
@@ -267,7 +266,7 @@ def career_recommend(student_id: str):
     )
 
     # -----------------------------------------------------
-    # Default values
+    # 7. Default Values
     # -----------------------------------------------------
 
     goal_match_percentage = 0
@@ -275,7 +274,7 @@ def career_recommend(student_id: str):
     goal_matched_skills = []
 
     # -----------------------------------------------------
-    # Calculate goal career match
+    # 8. Calculate Goal Career Match
     # -----------------------------------------------------
 
     if goal_career_data:
@@ -319,7 +318,7 @@ def career_recommend(student_id: str):
             )
 
     # -----------------------------------------------------
-    # Compare goal with best recommendation
+    # 9. Compare Goal With Best Recommendation
     # -----------------------------------------------------
 
     goal_match = (
@@ -328,7 +327,7 @@ def career_recommend(student_id: str):
     )
 
     # -----------------------------------------------------
-    # Goal analysis
+    # 10. Goal Analysis
     # -----------------------------------------------------
 
     if goal_match:
@@ -361,9 +360,31 @@ def career_recommend(student_id: str):
                 f"This career is not currently "
                 f"in our career database."
             )
+     # -----------------------------------------------------
+# STEP 9.6
+# FINAL RECOMMENDATION SUMMARY
+# -----------------------------------------------------
 
+    if goal_match:
+
+        final_recommendation = (
+        f"{best_career} is a strong career choice for you. "
+        f"You currently match {goal_match_percentage}% "
+        f"of the required skills for your career goal."
+    )
+
+    else:
+
+        final_recommendation = (
+        f"Based on your current skills, "
+        f"{best_career} is your best matching career "
+        f"with a recommendation match of "
+        f"{result['recommendations'][0]['match_percentage']}%. "
+        f"To reach your goal of {career_goal}, "
+        f"focus on the missing skills."
+    )
     # -----------------------------------------------------
-    # Final response
+    # 11. Final Response
     # -----------------------------------------------------
 
     return {
@@ -388,13 +409,14 @@ def career_recommend(student_id: str):
 
         "goal_matches_recommendation":
             goal_match,
-
         "goal_analysis":
-            goal_analysis,
+             goal_analysis,
+
+        "final_recommendation":
+        final_recommendation,
 
         "recommendation_reason":
-            result["recommendation_reason"],
-
+        result["recommendation_reason"],
         "recommendations":
             result["recommendations"]
     }
@@ -588,7 +610,7 @@ def career_roadmap(student_id: str):
         roadmap_status = "In Progress"
 
     # -----------------------------------------------------
-    # 12. Roadmap Summary - STEP 7.6
+    # 12. Roadmap Summary
     # -----------------------------------------------------
 
     if roadmap_status == "Completed":
@@ -645,10 +667,6 @@ def career_roadmap(student_id: str):
             "roadmap_status":
                 roadmap_status
         },
-
-        # -------------------------------------------------
-        # STEP 7.6 SUMMARY
-        # -------------------------------------------------
 
         "summary": {
 
@@ -781,7 +799,7 @@ def complete_skill(
         )
 
     # -----------------------------------------------------
-    # 8. Find Skill in Roadmap
+    # 8. Find Skill In Roadmap
     # Case-insensitive
     # -----------------------------------------------------
 
@@ -905,49 +923,43 @@ def complete_skill(
     # 16. Add Skill
     # -----------------------------------------------------
 
-        # -----------------------------------------------------
-# 16. Add Skill
-# -----------------------------------------------------
-
     current_skills.append(
-    roadmap_skill
+        roadmap_skill
     )
 
-
-# -----------------------------------------------------
-# 17. Add Learning History
-# -----------------------------------------------------
+    # -----------------------------------------------------
+    # 17. Add Learning History
+    # -----------------------------------------------------
 
     learning_history = student.get(
-    "learning_history",
-    []
-)
+        "learning_history",
+        []
+    )
 
     learning_history.append({
-    "skill": roadmap_skill,
-    "status": "Completed",
-    "completed_at": datetime.now().isoformat()
-})
-
-
-# -----------------------------------------------------
-# 18. Update MongoDB
-# -----------------------------------------------------
-
-    update_result = student_collection.update_one(
-    {
-        "_id": object_id
-    },
-    {
-        "$set": {
-            "skills": current_skills,
-            "learning_history": learning_history
-        }
-    }
-)
+        "skill": roadmap_skill,
+        "status": "Completed",
+        "completed_at": datetime.now().isoformat()
+    })
 
     # -----------------------------------------------------
-    # 18. Verify Update
+    # 18. Update MongoDB
+    # -----------------------------------------------------
+
+    update_result = student_collection.update_one(
+        {
+            "_id": object_id
+        },
+        {
+            "$set": {
+                "skills": current_skills,
+                "learning_history": learning_history
+            }
+        }
+    )
+
+    # -----------------------------------------------------
+    # 19. Verify Update
     # -----------------------------------------------------
 
     if update_result.matched_count == 0:
@@ -958,40 +970,45 @@ def complete_skill(
         )
 
     # -----------------------------------------------------
-    # 19. Success
+    # 20. Success
     # -----------------------------------------------------
 
     return {
-    "message":
-        "Skill completed successfully!",
 
-    "student":
-        student["name"],
+        "message":
+            "Skill completed successfully!",
 
-    "career":
-        best_career["career"],
+        "student":
+            student["name"],
 
-    "skill":
-        roadmap_skill,
+        "career":
+            best_career["career"],
 
-    "status":
-        "Completed",
+        "skill":
+            roadmap_skill,
 
-    "skills":
-        current_skills,
+        "status":
+            "Completed",
 
-    "learning_history":
-        learning_history,
+        "skills":
+            current_skills,
 
-    "modified":
-        update_result.modified_count
-}
+        "learning_history":
+            learning_history,
+
+        "modified":
+            update_result.modified_count
+    }
+
+
 # =========================================================
 # CAREER GOAL PROGRESS
-# DAY 8 - STEP 8.1
+# DAY 8
 # =========================================================
 
-@app.get("/career/goal-progress/{student_id}")
+@app.get(
+    "/career/goal-progress/{student_id}"
+)
 def career_goal_progress(student_id: str):
 
     # -----------------------------------------------------
@@ -999,9 +1016,11 @@ def career_goal_progress(student_id: str):
     # -----------------------------------------------------
 
     try:
+
         object_id = ObjectId(student_id)
 
     except Exception:
+
         raise HTTPException(
             status_code=400,
             detail="Invalid student ID"
@@ -1018,6 +1037,7 @@ def career_goal_progress(student_id: str):
     )
 
     if not student:
+
         raise HTTPException(
             status_code=404,
             detail="Student not found"
@@ -1033,6 +1053,7 @@ def career_goal_progress(student_id: str):
     )
 
     if not career_goal:
+
         raise HTTPException(
             status_code=400,
             detail="Student has no career goal"
@@ -1047,6 +1068,7 @@ def career_goal_progress(student_id: str):
     )
 
     if not career_data:
+
         raise HTTPException(
             status_code=404,
             detail="Career goal not found in career database"
@@ -1060,11 +1082,13 @@ def career_goal_progress(student_id: str):
         "skills",
         []
     )
+
     if not required_skills:
+
         raise HTTPException(
-        status_code=404,
-        detail="No skills found for this career"
-    )
+            status_code=404,
+            detail="No skills found for this career"
+        )
 
     # -----------------------------------------------------
     # 6. Get Student Skills
@@ -1101,13 +1125,23 @@ def career_goal_progress(student_id: str):
         if skill.strip().lower()
         not in student_skills_lower
     ]
-     # Find the next skill the student should learn
+
+    # -----------------------------------------------------
+    # 8.5 Find Next Goal Skill
+    # -----------------------------------------------------
+
     if missing_skills:
-         next_goal_skill = {
-        "skill": missing_skills[0],
-        "reason": "This is the next missing skill required for your career goal."
-    }
+
+        next_goal_skill = {
+            "skill": missing_skills[0],
+            "reason": (
+                "This is the next missing skill "
+                "required for your career goal."
+            )
+        }
+
     else:
+
         next_goal_skill = None
 
     # -----------------------------------------------------
@@ -1120,6 +1154,10 @@ def career_goal_progress(student_id: str):
 
     completed_count = len(
         completed_skills
+    )
+
+    remaining_count = len(
+        missing_skills
     )
 
     if total_skills > 0:
@@ -1157,16 +1195,37 @@ def career_goal_progress(student_id: str):
     # -----------------------------------------------------
 
     return {
-    "student": student["name"],
-    "career_goal": career_goal,
-    "progress": {
-        "total_skills": total_skills,
-        "completed": completed_count,
-        "remaining": len(missing_skills),
-        "progress_percentage": progress_percentage,
-        "goal_status": goal_status
-    },
-    "completed_skills": completed_skills,
-    "missing_skills": missing_skills,
-    "next_goal_skill": next_goal_skill
-}
+
+        "student":
+            student["name"],
+
+        "career_goal":
+            career_goal,
+
+        "progress": {
+
+            "total_skills":
+                total_skills,
+
+            "completed":
+                completed_count,
+
+            "remaining":
+                remaining_count,
+
+            "progress_percentage":
+                progress_percentage,
+
+            "goal_status":
+                goal_status
+        },
+
+        "completed_skills":
+            completed_skills,
+
+        "missing_skills":
+            missing_skills,
+
+        "next_goal_skill":
+            next_goal_skill
+    }

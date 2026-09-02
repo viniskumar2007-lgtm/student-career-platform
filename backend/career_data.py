@@ -470,6 +470,17 @@ def get_learning_order(required_skills, student_skills_set):
 
 # ============================================================
 # RECOMMEND CAREERS
+# DAY 9 - STEP 9.1
+# ============================================================
+
+# ============================================================
+# RECOMMEND CAREERS
+# DAY 9 - STEP 9.1, 9.2, 9.3
+# ============================================================
+
+# ============================================================
+# RECOMMEND CAREERS
+# DAY 9 - STEP 9.1 TO STEP 9.5
 # ============================================================
 
 def recommend_careers(student_skills):
@@ -479,13 +490,17 @@ def recommend_careers(student_skills):
     # Convert student skills to set
     student_skills_set = set(student_skills)
 
-    # Check every career
+    # ========================================================
+    # CHECK EVERY CAREER
+    # ========================================================
+
     for career in careers:
 
         required_skills = career["skills"]
 
         # ----------------------------------------------------
         # MATCHED SKILLS
+        # STEP 9.1 / 9.2
         # ----------------------------------------------------
 
         matched_skills = [
@@ -496,6 +511,7 @@ def recommend_careers(student_skills):
 
         # ----------------------------------------------------
         # MISSING SKILLS
+        # STEP 9.3
         # ----------------------------------------------------
 
         missing_skills = [
@@ -614,9 +630,120 @@ def recommend_careers(student_skills):
             )
         )
 
-        # ----------------------------------------------------
+        # ====================================================
+        # STEP 9.3
+        # MISSING SKILLS EXPLANATION
+        # ====================================================
+
+        if matched_skills:
+
+            matched_skill_names = ", ".join(
+                matched_skills
+            )
+
+            if missing_skills:
+
+                missing_skill_names = ", ".join(
+                    missing_skills
+                )
+
+                recommendation_reason = (
+                    f"You match {len(matched_skills)} "
+                    f"out of {len(required_skills)} "
+                    f"required skills: "
+                    f"{matched_skill_names}. "
+                    f"You are missing "
+                    f"{len(missing_skills)} "
+                    f"skill"
+                    f"{'s' if len(missing_skills) != 1 else ''}: "
+                    f"{missing_skill_names}."
+                )
+
+            else:
+
+                recommendation_reason = (
+                    f"You match all "
+                    f"{len(required_skills)} "
+                    f"required skills: "
+                    f"{matched_skill_names}."
+                )
+
+        else:
+
+            missing_skill_names = ", ".join(
+                missing_skills
+            )
+
+            recommendation_reason = (
+                f"You currently have no matching "
+                f"skills for this career. "
+                f"You are missing "
+                f"{len(missing_skills)} "
+                f"required skills: "
+                f"{missing_skill_names}."
+            )
+
+        # ====================================================
+        # STEP 9.4
+        # MATCH ANALYSIS
+        # ====================================================
+
+        if match_percentage >= 80:
+
+            match_analysis = (
+                "Strong match. "
+                "You already have most of the required skills "
+                "for this career."
+            )
+
+        elif match_percentage >= 50:
+
+            match_analysis = (
+                "Moderate match. "
+                "You have several required skills, "
+                "but you still need to develop some important skills."
+            )
+
+        elif match_percentage > 0:
+
+            match_analysis = (
+                "Low match. "
+                "You have a few matching skills, "
+                "but you need to learn several additional skills."
+            )
+
+        else:
+
+            match_analysis = (
+                "No current match. "
+                "You do not currently have any of the "
+                "required skills for this career."
+            )
+
+        # ====================================================
+        # STEP 9.5
+        # RECOMMENDATION CONFIDENCE
+        # ====================================================
+
+        if match_percentage >= 80:
+
+            recommendation_confidence = "High"
+
+        elif match_percentage >= 50:
+
+            recommendation_confidence = "Medium"
+
+        elif match_percentage > 0:
+
+            recommendation_confidence = "Low"
+
+        else:
+
+            recommendation_confidence = "Very Low"
+
+        # ====================================================
         # ADD CAREER RECOMMENDATION
-        # ----------------------------------------------------
+        # ====================================================
 
         recommendations.append({
             "career": career["career"],
@@ -626,6 +753,9 @@ def recommend_careers(student_skills):
             ),
             "matched_skills": matched_skills,
             "missing_skills": missing_skills,
+            "recommendation_reason": recommendation_reason,
+            "match_analysis": match_analysis,
+            "recommendation_confidence": recommendation_confidence,
             "roadmap": roadmap
         })
 
@@ -638,10 +768,16 @@ def recommend_careers(student_skills):
         reverse=True
     )
 
-    # Top 3 careers
+    # ========================================================
+    # TOP 3 CAREERS
+    # ========================================================
+
     top_3 = recommendations[:3]
 
-    # Best career
+    # ========================================================
+    # BEST CAREER
+    # ========================================================
+
     best_career = top_3[0]
 
     # ========================================================
@@ -662,15 +798,17 @@ def recommend_careers(student_skills):
     )
 
     # ========================================================
-    # RECOMMENDATION REASON
+    # OVERALL RECOMMENDATION REASON
     # ========================================================
 
     if missing_count == 0:
 
         reason = (
-            f"You have all {total_skills} required skills "
-            f"for {best_career['career']}. "
-            f"You are highly suitable for this career."
+            f"You have all {total_skills} "
+            f"required skills for "
+            f"{best_career['career']}. "
+            f"You are highly suitable "
+            f"for this career."
         )
 
     else:
@@ -681,7 +819,8 @@ def recommend_careers(student_skills):
 
         reason = (
             f"You already have {matched_count} "
-            f"out of {total_skills} required skills. "
+            f"out of {total_skills} "
+            f"required skills. "
             f"Focus on {missing_skill_names} "
             f"to improve your match."
         )
@@ -697,6 +836,21 @@ def recommend_careers(student_skills):
     }
 
 
+# ============================================================
+# GET CAREER BY NAME
+# ============================================================
+
+def get_career_by_name(career_name):
+
+    for career in careers:
+
+        if (
+            career["career"].lower()
+            == career_name.lower()
+        ):
+            return career
+
+    return None
 # ============================================================
 # GET CAREER BY NAME
 # ============================================================
